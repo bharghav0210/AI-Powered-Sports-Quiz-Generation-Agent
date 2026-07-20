@@ -3,5 +3,6 @@ chromadb
 sentence-transformers
 ddgs
 python-dotenv
-openai>=2.0.0
+google-genai
 ollama
+openai

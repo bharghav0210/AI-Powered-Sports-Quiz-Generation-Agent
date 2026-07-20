@@ -2,13 +2,19 @@ from abc import ABC, abstractmethod
 
 from ollama import Client
 from openai import OpenAI
+from google import genai
 
 from src.config import (
     LLM_PROVIDER,
+
     OPENAI_API_KEY,
     OPENAI_MODEL,
+
     OLLAMA_BASE_URL,
     OLLAMA_MODEL,
+
+    GEMINI_API_KEY,
+    GEMINI_MODEL,
 )
 
 
@@ -101,14 +107,31 @@ class OllamaService(BaseLLM):
             ) from error
 
 
+class GeminiService(BaseLLM):
+    """
+    Google Gemini implementation.
+    """
+
+    def __init__(self):
+
+        self.client = genai.Client(
+            api_key=GEMINI_API_KEY
+        )
+
+    def generate(self, prompt: str) -> str:
+
+        response = self.client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=prompt,
+        )
+
+        return response.text.strip()
+    
 # ============================================================
 # Factory
 # ============================================================
 
-def get_llm() -> BaseLLM:
-    """
-    Return the configured LLM provider.
-    """
+def get_llm():
 
     provider = LLM_PROVIDER.lower()
 
@@ -118,6 +141,9 @@ def get_llm() -> BaseLLM:
     if provider == "ollama":
         return OllamaService()
 
+    if provider == "gemini":
+        return GeminiService()
+
     raise ValueError(
-        f"Unsupported LLM provider: {provider}"
+        f"Unsupported provider: {provider}"
     )
