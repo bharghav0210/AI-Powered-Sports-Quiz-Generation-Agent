@@ -1,13 +1,29 @@
 from pathlib import Path
-
-from dotenv import load_dotenv
 import os
 
+from dotenv import load_dotenv
+
 # ============================================================
-# Load Environment Variables
+# Load Local Environment Variables
 # ============================================================
 
 load_dotenv()
+
+# ============================================================
+# Streamlit Secrets (Optional)
+# ============================================================
+
+try:
+    import streamlit as st
+
+    def get_config(key: str, default=None):
+        return st.secrets.get(key, os.getenv(key, default))
+
+except Exception:
+
+    def get_config(key: str, default=None):
+        return os.getenv(key, default)
+
 
 # ============================================================
 # Project Paths
@@ -18,53 +34,56 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DB_PATH = BASE_DIR / "chroma_db"
 
 # ============================================================
-# OpenAI Configuration
-# ============================================================
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-OPENAI_MODEL = os.getenv(
-    "OPENAI_MODEL",
-    "gpt-4.1-mini",
-)
-
-# ============================================================
 # LLM Provider
 # ============================================================
 
-LLM_PROVIDER = os.getenv(
+LLM_PROVIDER = get_config(
     "LLM_PROVIDER",
-    "ollama",      # openai | ollama
+    "gemini",
 )
 
 # ============================================================
-# Ollama
+# OpenAI
 # ============================================================
 
-OLLAMA_BASE_URL = os.getenv(
-    "OLLAMA_BASE_URL",
-    "http://localhost:11434",
+OPENAI_API_KEY = get_config(
+    "OPENAI_API_KEY"
 )
 
-OLLAMA_MODEL = os.getenv(
-    "OLLAMA_MODEL",
-    "llama3.2:3b",
+OPENAI_MODEL = get_config(
+    "OPENAI_MODEL",
+    "gpt-4.1-mini",
 )
 
 # ============================================================
 # Gemini
 # ============================================================
 
-GEMINI_API_KEY = os.getenv(
+GEMINI_API_KEY = get_config(
     "GEMINI_API_KEY"
 )
 
-GEMINI_MODEL = os.getenv(
+GEMINI_MODEL = get_config(
     "GEMINI_MODEL",
-    "gemini-2.5-flash"
+    "gemini-flash-latest",
 )
+
 # ============================================================
-# ChromaDB Configuration
+# Ollama
+# ============================================================
+
+OLLAMA_BASE_URL = get_config(
+    "OLLAMA_BASE_URL",
+    "http://localhost:11434",
+)
+
+OLLAMA_MODEL = get_config(
+    "OLLAMA_MODEL",
+    "llama3.2:3b",
+)
+
+# ============================================================
+# ChromaDB
 # ============================================================
 
 COLLECTION_NAME = "sports_knowledge"
@@ -85,9 +104,9 @@ TOP_K = 5
 
 DEFAULT_QUESTION_COUNT = 5
 
-MAX_QUESTION_COUNT = 10
-
 MIN_QUESTION_COUNT = 1
+
+MAX_QUESTION_COUNT = 10
 
 # ============================================================
 # Supported Sports
